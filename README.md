@@ -16,10 +16,7 @@ A Streamlit application that allows you to read PDF books and chat with an AI as
    ```
    pip install -r requirements.txt
    ```
-3. Set your OpenAI API key as an environment variable:
-   ```
-   export OPENAI_API_KEY="your-api-key-here"
-   ```
+3. Add you OpenAI API key to `open-ai-api-key`
 
 ## Running the App
 

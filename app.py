@@ -127,7 +127,7 @@ def main():
             # PDF viewer
             st.image(
                 render_page(pdf_doc, st.session_state.current_page),
-                use_column_width=True,
+                use_container_width=True,
             )
 
             # Page navigation
@@ -166,7 +166,8 @@ def main():
     else:
         # Full width PDF viewer
         st.image(
-            render_page(pdf_doc, st.session_state.current_page), use_column_width=True
+            render_page(pdf_doc, st.session_state.current_page),
+            use_container_width=True,
         )
 
         # Page navigation
