@@ -43,4 +43,13 @@ def test_text_input():
     )
 
 
-test_text_input()
+def test_button():
+    print(f"script reloaded. session state = {st.session_state}")
+    if st.button("click me"):
+        print("button clicked")
+        if "click_cnt" not in st.session_state:
+            st.session_state["click_cnt"] = 0
+        st.rerun()
+
+
+test_button()

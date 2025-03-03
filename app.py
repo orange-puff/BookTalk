@@ -110,6 +110,32 @@ def display_book(pdf_doc: open):
     )
 
 
+def display_chat():
+    # Chat interface
+    st.subheader("Chat")
+
+    # Display chat history
+    for question, answer in st.session_state.chat_history:
+        st.write(f"**You:** {question}")
+        st.write(f"**AI:** {answer}")
+        st.write("---")
+
+    # User input
+    with st.form(key="foo", clear_on_submit=True):
+        user_question = st.text_input("Ask a question about the book")
+
+        if st.form_submit_button(label="Send"):
+            if user_question:
+                # Generate response
+                response = generate_response(user_question)
+
+                # Update chat history
+                st.session_state.chat_history.append((user_question, response))
+
+                # Clear input
+                st.rerun()
+
+
 # Main app
 def main():
 
@@ -148,35 +174,14 @@ def main():
 
     # Layout based on chat visibility
     if st.session_state.show_chat:
-        col1, col2 = st.columns([2, 1])
+        col1, col2 = st.columns([3, 1])
 
         with col1:
             display_book(pdf_doc)
 
         with col2:
-            # Chat interface
-            st.subheader("Chat")
+            display_chat()
 
-            # Display chat history
-            for question, answer in st.session_state.chat_history:
-                st.write(f"**You:** {question}")
-                st.write(f"**AI:** {answer}")
-                st.write("---")
-
-            # User input
-            with st.form(key="foo", clear_on_submit=True):
-                user_question = st.text_input("Ask a question about the book")
-
-                if st.form_submit_button(label="Send"):
-                    if user_question:
-                        # Generate response
-                        response = generate_response(user_question)
-
-                        # Update chat history
-                        st.session_state.chat_history.append((user_question, response))
-
-                        # Clear input
-                        st.rerun()
     else:
         display_book(pdf_doc)
 
