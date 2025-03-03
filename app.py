@@ -54,9 +54,7 @@ def generate_response(prompt):
         context += f"Q: {q}\nA: {a}\n\n"
 
     # Final prompt with context
-    final_prompt = f"Current page content:\n{current_page_text}\n\nPrevious conversation:\n{context}\n\nQuestion: {prompt}"
-
-    print(final_prompt)
+    final_prompt = f"Previous conversation:\n{context}\n\nCurrent page content:\n{current_page_text}\n\nQuestion: {prompt}"
 
     response = client.chat.completions.create(
         model="gpt-4-turbo", messages=[{"role": "user", "content": final_prompt}]
