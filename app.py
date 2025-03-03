@@ -57,7 +57,7 @@ def generate_response(prompt):
     final_prompt = f"Previous conversation:\n{context}\n\nCurrent page content:\n{current_page_text}\n\nQuestion: {prompt}"
 
     response = client.chat.completions.create(
-        model="gpt-4-turbo", messages=[{"role": "user", "content": final_prompt}]
+        model="gpt-4o-mini", messages=[{"role": "user", "content": final_prompt}]
     )
 
     return response.choices[0].message.content
@@ -81,9 +81,37 @@ def prev_page():
         st.session_state.current_page -= 1
 
 
+def display_book(pdf_doc: open):
+    col_prev, col_page, col_next = st.columns([1, 2, 1])
+    with col_prev:
+        if st.button("← Previous Page"):
+            prev_page()
+    with col_page:
+        page_number = st.number_input(
+            "Go to page:",
+            min_value=1,
+            max_value=len(pdf_doc),
+            value=st.session_state.current_page + 1,
+            step=1,
+            label_visibility="collapsed",
+        )
+        if st.session_state.current_page != page_number - 1:
+            st.session_state.current_page = page_number - 1
+            st.rerun()
+
+    with col_next:
+        if st.button("Next Page →"):
+            next_page()
+
+    st.write(f"Page {st.session_state.current_page + 1} of {len(pdf_doc)}")
+    st.image(
+        render_page(pdf_doc, st.session_state.current_page),
+        use_container_width=True,
+    )
+
+
 # Main app
 def main():
-    st.title("Book Talk App")
 
     # Get list of PDF files in current directory
     pdf_files = glob.glob("*.pdf")
@@ -110,6 +138,7 @@ def main():
         st.session_state.current_book = selected_book
         st.session_state.current_page = 0
         st.session_state.chat_history = []
+        st.rerun()
 
     # Toggle chat button
     st.sidebar.button("Toggle Chat", on_click=toggle_chat)
@@ -122,22 +151,7 @@ def main():
         col1, col2 = st.columns([2, 1])
 
         with col1:
-            # PDF viewer
-            st.image(
-                render_page(pdf_doc, st.session_state.current_page),
-                use_container_width=True,
-            )
-
-            # Page navigation
-            col_prev, col_next = st.columns(2)
-            with col_prev:
-                if st.button("← Previous Page"):
-                    prev_page()
-            with col_next:
-                if st.button("Next Page →"):
-                    next_page()
-
-            st.write(f"Page {st.session_state.current_page + 1} of {len(pdf_doc)}")
+            display_book(pdf_doc)
 
         with col2:
             # Chat interface
@@ -150,34 +164,21 @@ def main():
                 st.write("---")
 
             # User input
-            user_question = st.text_input("Ask a question about the book")
-            if st.button("Send"):
-                if user_question:
-                    # Generate response
-                    response = generate_response(user_question)
+            with st.form(key="foo", clear_on_submit=True):
+                user_question = st.text_input("Ask a question about the book")
 
-                    # Update chat history
-                    st.session_state.chat_history.append((user_question, response))
+                if st.form_submit_button(label="Send"):
+                    if user_question:
+                        # Generate response
+                        response = generate_response(user_question)
 
-                    # Clear input
-                    st.rerun()
+                        # Update chat history
+                        st.session_state.chat_history.append((user_question, response))
+
+                        # Clear input
+                        st.rerun()
     else:
-        # Full width PDF viewer
-        st.image(
-            render_page(pdf_doc, st.session_state.current_page),
-            use_container_width=True,
-        )
-
-        # Page navigation
-        col_prev, col_next = st.columns(2)
-        with col_prev:
-            if st.button("← Previous Page"):
-                prev_page()
-        with col_next:
-            if st.button("Next Page →"):
-                next_page()
-
-        st.write(f"Page {st.session_state.current_page + 1} of {len(pdf_doc)}")
+        display_book(pdf_doc)
 
 
 if __name__ == "__main__":
